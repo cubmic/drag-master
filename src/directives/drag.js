@@ -51,8 +51,8 @@ export const drag = {
     function onDrag (event) {
       if (dragObj) {
         let parentPos = dragObj.parentNode.getBoundingClientRect()
-        let top = event.pageY - startPos.y - parentPos.y
-        let left = event.pageX - startPos.x - parentPos.x
+        let top = event.pageY - (startPos.y - parentPos.y)
+        let left = event.pageX - (startPos.x - parentPos.x)
 
         if (binding.value) {
           // grid
