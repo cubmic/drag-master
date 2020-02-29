@@ -1,5 +1,6 @@
 <template>
   <div>
+    Drag over other rects
     <template v-for="(item, i) in items">
       <div
         v-if="item.drag && item.drop"
@@ -30,6 +31,7 @@
         drop
       </div>
     </template>
+    <pre class="pre">{{ items }}</pre>
   </div>
 </template>
 
@@ -41,6 +43,10 @@
   background: #CCC;
   border: 5px solid #000;
   z-index: 0;
+}
+.pre {
+  position: absolute;
+  top: 200px;
 }
 </style>
 
@@ -86,4 +92,21 @@ export default {
     }
   }
 }
+
+/*
+function myMove() {
+  var elem = document.getElementById("myAnimation");   
+  var pos = 0;
+  var id = setInterval(frame, 10);
+  function frame() {
+    if (pos == 350) {
+      clearInterval(id);
+    } else {
+      pos++; 
+      elem.style.top = pos + 'px'; 
+      elem.style.left = pos + 'px'; 
+    }
+  }
+}
+*/
 </script>
