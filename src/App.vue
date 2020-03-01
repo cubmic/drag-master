@@ -1,16 +1,18 @@
 <template>
   <div id="app">
-    <index />
+    <list />
   </div>
 </template>
 
 <script>
-import index from './components/index.vue'
+// import drag from './components/drag.vue'
+import list from './components/list.vue'
 
 export default {
   name: 'App',
   components: {
-    index
+    // drag,
+    list
   }
 }
 </script>

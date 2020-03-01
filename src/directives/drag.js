@@ -7,7 +7,7 @@ export const drag = {
   inserted (el, binding) {
     // init
     var dragObj = null
-    var startPos = null
+    var posInDragObj = null
     var relative = false
     var data = null
     var hoverObj = null
@@ -19,18 +19,20 @@ export const drag = {
       }
 
       dragObj = event.target
-
-      let dragPos = dragObj.getBoundingClientRect()
-      let y = event.pageY - dragPos.top + dragObj.clientTop
-      let x = event.pageX - dragPos.left + dragObj.clientLeft
-      startPos = { x: x, y: y }
+      posInDragObj = {
+        x: event.pageX - dragObj.getBoundingClientRect().x,
+        y: event.pageY - dragObj.getBoundingClientRect().y
+      }
 
       // if relative change to absolute
       relative = getComputedStyle(dragObj).position !== 'absolute'
       if (relative) {
-        dragObj.style.width = dragObj.getBoundingClientRect().width + 'px'
+        dragObj.style.width = dragObj.offsetWidth + 'px'
         dragObj.style.position = 'absolute'
       }
+
+      dragObj.style.top = (event.pageY - posInDragObj.y) + 'px'
+      dragObj.style.left = (event.pageX - posInDragObj.x) + 'px'
 
       if (binding.value) {
         // related data
@@ -50,9 +52,8 @@ export const drag = {
     // drag event
     function onDrag (event) {
       if (dragObj) {
-        let parentPos = dragObj.parentNode.getBoundingClientRect()
-        let top = event.pageY - (startPos.y - parentPos.y)
-        let left = event.pageX - (startPos.x - parentPos.x)
+        let top = event.pageY - posInDragObj.y
+        let left = event.pageX - posInDragObj.x
 
         if (binding.value) {
           // grid
@@ -74,6 +75,14 @@ export const drag = {
         }
 
         if (binding.value) {
+          // sort
+          if (binding.value.sortBy) {
+            let key = binding.value.sortBy
+            let parent = dragObj.parentNode
+            let list = [...parent.childNodes]
+            list.sort((a, b) => a[key] > b[key] ? 1 : -1).map(node => parent.appendChild(node))
+          }
+
           // onDrag function call
           if (binding.value.onDrag) {
             binding.value.onDrag(dragObj, data)
@@ -110,6 +119,7 @@ export const drag = {
         // style reset
         if (relative) {
           dragObj.style.position = 'relative'
+          dragObj.style.width = 'auto'
           dragObj.style.left = '0px'
           dragObj.style.top = '0px'
         }
@@ -122,7 +132,7 @@ export const drag = {
         }
       }
       dragObj = null
-      startPos = null
+      posInDragObj = null
       data = null
       event.stopPropagation()
     }

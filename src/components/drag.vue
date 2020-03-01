@@ -57,7 +57,7 @@ export default {
     return {
       items: [
         { id: 1, color: '579', drag: true },
-        { id: 2, color: '975', drag: true },
+        { id: 2, color: '975', drag: true, drop: true },
         { id: 3, color: '597', drag: true },
         { id: 4, color: 'F88', drag: true, drop: true },
         { id: 5, color: '88F', drop: true }
