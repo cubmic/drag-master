@@ -73,11 +73,15 @@ export default {
       },
       dropDefs: () => {
         return {
-          onEnter: (dragObj) => {
-            console.log('enter', dragObj)
+          onEnter: (dragObj, dropObj) => {
+            if (dragObj.parentNode !== dropObj) {
+              console.log('enter', dragObj, dropObj)
+            }
           },
-          onLeave: (dragObj) => {
-            console.log('leave', dragObj)
+          onLeave: (dragObj, dropObj) => {
+            if (dragObj.parentNode !== dropObj) {
+              console.log('leave', dragObj, dropObj)
+            }
           }
         }
       },

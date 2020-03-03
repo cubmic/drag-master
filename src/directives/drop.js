@@ -8,7 +8,7 @@ export const drop = {
     el.onEnter = (dragObj, data) => {
       if (binding.value) {
         if (binding.value.onEnter) {
-          binding.value.onEnter(dragObj, data)
+          binding.value.onEnter(dragObj, el, data)
         }
       }
     }
@@ -16,7 +16,7 @@ export const drop = {
     el.onLeave = (dragObj, data) => {
       if (binding.value) {
         if (binding.value.onLeave) {
-          binding.value.onLeave(dragObj, data)
+          binding.value.onLeave(dragObj, el, data)
         }
       }
     }

@@ -75,7 +75,7 @@ export default {
       dropDefs: (defData) => {
         let oldColor = defData.color
         return {
-          onEnter: (dragObj, data) => {
+          onEnter: (dragObj, dropObj, data) => {
             defData.color = data.color
           },
           onLeave: () => {
