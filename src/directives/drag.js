@@ -19,9 +19,14 @@ export const drag = {
       }
 
       dragObj = event.target
+
+      if (getComputedStyle(dragObj.parentNode).position !== 'absolute' && dragObj.parentNode.style.position !== 'absolute') {
+        dragObj.parentNode.style.position = 'relative'
+      }
+
       posInDragObj = {
-        x: event.pageX - dragObj.getBoundingClientRect().x,
-        y: event.pageY - dragObj.getBoundingClientRect().y
+        x: event.pageX - dragObj.getBoundingClientRect().x + dragObj.parentNode.getBoundingClientRect().x,
+        y: event.pageY - dragObj.getBoundingClientRect().y + dragObj.parentNode.getBoundingClientRect().y
       }
 
       // if relative change to absolute

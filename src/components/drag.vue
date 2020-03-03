@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="position:relative">
     Drag over other rects
     <template v-for="(item, i) in items">
       <div
@@ -45,8 +45,7 @@
   z-index: 0;
 }
 .pre {
-  position: absolute;
-  top: 200px;
+  margin-top: 200px;
 }
 </style>
 

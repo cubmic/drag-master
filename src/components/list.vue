@@ -1,7 +1,8 @@
 <template>
   <div>
-    <template v-for="list in lists">
-      <ul :key="list.id" v-drop="dropDefs(list)">
+    <div v-for="list in lists" :key="list.id">
+      <h2>{{ list.title }}</h2>
+      <ul v-drop="dropDefs()">
         <li
           v-for="item in list.items"
           :key="item.id"
@@ -10,8 +11,8 @@
           {{ item.name }}
         </li>
       </ul>
-      <br :key="list.id + 'br'" />
-    </template>
+      <br />
+    </div>
   </div>
 </template>
 
@@ -48,20 +49,22 @@ export default {
         {
           id: 1,
           color: '975',
+          title: 'Items',
           items: [
-            { id: 1, name: 'Tamara' },
-            { id: 2, name: 'Michel' },
-            { id: 3, name: 'Jessica' },
-            { id: 4, name: 'Jan' },
-            { id: 5, name: 'Anina' }
+            { id: 1, name: 'Coke' },
+            { id: 2, name: 'Orange Juice' },
+            { id: 3, name: 'Apple' },
+            { id: 4, name: 'Cornflakes' },
+            { id: 5, name: 'Banana' }
           ]
         },
         {
           id: 2,
           color: '579',
+          title: 'Shopping list',
           items: [
-            { id: 6, name: 'Musterman' },
-            { id: 7, name: 'Trudi' }
+            { id: 6, name: 'Wine' },
+            { id: 7, name: 'Milk' }
           ]
         }
       ],
@@ -70,11 +73,11 @@ export default {
       },
       dropDefs: () => {
         return {
-          onEnter: () => {
-            console.log('enter')
+          onEnter: (dragObj) => {
+            console.log('enter', dragObj)
           },
-          onLeave: () => {
-            console.log('leave')
+          onLeave: (dragObj) => {
+            console.log('leave', dragObj)
           }
         }
       },
