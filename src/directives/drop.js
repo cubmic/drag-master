@@ -4,6 +4,12 @@ export const drop = {
   inserted (el, binding) {
     // add to window
     window.dropElements.push(el)
+
+    // set parent to relative if not absolute
+    if (getComputedStyle(el).position !== 'absolute' && el.style.position !== 'absolute') {
+      el.style.position = 'relative'
+    }
+
     // enter event
     el.onEnter = (dragObj, data) => {
       if (binding.value) {
@@ -12,6 +18,7 @@ export const drop = {
         }
       }
     }
+
     // leave event
     el.onLeave = (dragObj, data) => {
       if (binding.value) {

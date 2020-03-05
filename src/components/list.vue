@@ -7,12 +7,14 @@
           v-for="item in list.items"
           :key="item.id"
           v-drag="dragDefs(item)"
+          :style="'background: #' + list.color"
         >
           {{ item.name }}
         </li>
       </ul>
       <br />
     </div>
+    <pre>{{ lists }}</pre>
   </div>
 </template>
 
@@ -26,7 +28,7 @@ li {
   height: 30px;
   margin: 5px 0;
   padding: 5px;
-  background: #CCC;
+  color: #FFF;
   list-style-type: none;
   user-select: none;
 }
@@ -43,19 +45,29 @@ li {
 <script>
 export default {
   name: 'PageIndex',
+  computed: {
+    lists () {
+      return this.data
+      /*
+      return this.data.sort((a, b) => {
+        return b.sort - a.sort
+      })
+      */
+    }
+  },
   data () {
     return {
-      lists: [
+      data: [
         {
           id: 1,
           color: '975',
           title: 'Items',
           items: [
-            { id: 1, name: 'Coke' },
-            { id: 2, name: 'Orange Juice' },
-            { id: 3, name: 'Apple' },
-            { id: 4, name: 'Cornflakes' },
-            { id: 5, name: 'Banana' }
+            { id: 1, sort: 1, name: 'Coke' },
+            { id: 2, sort: 2, name: 'Orange Juice' },
+            { id: 3, sort: 3, name: 'Apple' },
+            { id: 4, sort: 4, name: 'Cornflakes' },
+            { id: 5, sort: 5, name: 'Banana' }
           ]
         },
         {
@@ -63,8 +75,8 @@ export default {
           color: '579',
           title: 'Shopping list',
           items: [
-            { id: 6, name: 'Wine' },
-            { id: 7, name: 'Milk' }
+            { id: 6, sort: 1, name: 'Wine' },
+            { id: 7, sort: 2, name: 'Milk' }
           ]
         }
       ],
@@ -75,12 +87,7 @@ export default {
         return {
           onEnter: (dragObj, dropObj) => {
             if (dragObj.parentNode !== dropObj) {
-              console.log('enter', dragObj, dropObj)
-            }
-          },
-          onLeave: (dragObj, dropObj) => {
-            if (dragObj.parentNode !== dropObj) {
-              console.log('leave', dragObj, dropObj)
+              dropObj.appendChild(dragObj)
             }
           }
         }
@@ -92,18 +99,22 @@ export default {
           data: defData,
           sortBy: 'offsetTop',
           onStart: (dragObj) => {
+            // add placeholder
             placeholder = document.createElement('li')
             placeholder.classList.add('placeholder')
             dragObj.parentNode.insertBefore(placeholder, dragObj)
 
+            // add drag class
             dragObj.classList.add('drag')
           },
           onDrag: (dragObj) => {
             dragObj.parentNode.insertBefore(placeholder, dragObj)
           },
           onEnd: (dragObj) => {
+            // remove placeholder
             dragObj.parentNode.removeChild(placeholder)
 
+            // remove drag class
             dragObj.classList.remove('drag')
           }
         }

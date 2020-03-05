@@ -1,10 +1,10 @@
 <template>
   <div id="app">
-    <span @click="page = 'Drag&Drop'">Drag&Drop</span>
-    <span @click="page = 'List'">List</span>
+    <span @click="page = 1" :class="{ active: page === 1 }">Drag&Drop</span>
+    <span @click="page = 2" :class="{ active: page === 2 }">Lists</span>
     <div class="page">
-      <drag v-if="page === 'Drag&Drop'" />
-      <list v-if="page === 'List'" />
+      <drag v-if="page === 1" />
+      <list v-if="page === 2" />
     </div>
   </div>
 </template>
@@ -20,6 +20,9 @@
   padding: 5px;
   cursor: pointer;
   color: #FFF;
+}
+#app span.active {
+  background: rgb(20, 104, 48);
 }
 #app span:hover {
   background: #7A8;
@@ -41,7 +44,7 @@ export default {
   },
   data () {
     return {
-      page: 'Drag&Drop'
+      page: 2
     }
   }
 }
