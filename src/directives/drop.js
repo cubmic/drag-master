@@ -19,6 +19,24 @@ export const drop = {
       }
     }
 
+    // move event
+    el.onMove = (dragObj, data) => {
+      if (binding.value) {
+        if (binding.value.onMove) {
+          binding.value.onMove(dragObj, el, data)
+        }
+      }
+    }
+
+    // drop event
+    el.onDrop = (dragObj, data) => {
+      if (binding.value) {
+        if (binding.value.onDrop) {
+          binding.value.onDrop(dragObj, el, data)
+        }
+      }
+    }
+
     // leave event
     el.onLeave = (dragObj, data) => {
       if (binding.value) {

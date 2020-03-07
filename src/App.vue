@@ -10,9 +10,11 @@
 </template>
 
 <style>
+#app {
+  margin: 10px;
+}
 #app * {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  box-sizing: border-box;
 }
 #app span {
   background: #697;

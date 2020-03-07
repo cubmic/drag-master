@@ -84,41 +84,79 @@ export default {
         byY: true
       },
       dropDefs: () => {
+        let placeholder
         return {
           onEnter: (dragObj, dropObj) => {
-            if (dragObj.parentNode !== dropObj) {
-              dropObj.appendChild(dragObj)
-            }
+            // add placeholder
+            placeholder = document.createElement('li')
+            placeholder.classList.add('placeholder')
+            dropObj.appendChild(placeholder)
+
+            this.sort(dragObj, dropObj, placeholder)
+          },
+          onMove: (dragObj, dropObj) => {
+            this.sort(dragObj, dropObj, placeholder)
+          },
+          onLeave: (dragObj, dropObj) => {
+            // remove placeholder
+            dropObj.removeChild(placeholder)
+          },
+          onDrop: (dragObj, dropObj) => {
+            // remove placeholder
+            dropObj.insertBefore(dragObj, placeholder)
+            dropObj.removeChild(placeholder)
           }
         }
       },
       dragDefs: (defData) => {
-        let placeholder
         return {
+          parent: () => this.$el,
           lockX: true,
           data: defData,
-          sortBy: 'offsetTop',
           onStart: (dragObj) => {
-            // add placeholder
-            placeholder = document.createElement('li')
-            placeholder.classList.add('placeholder')
-            dragObj.parentNode.insertBefore(placeholder, dragObj)
-
             // add drag class
             dragObj.classList.add('drag')
           },
-          onDrag: (dragObj) => {
-            dragObj.parentNode.insertBefore(placeholder, dragObj)
-          },
           onEnd: (dragObj) => {
-            // remove placeholder
-            dragObj.parentNode.removeChild(placeholder)
-
             // remove drag class
             dragObj.classList.remove('drag')
+            return true
           }
         }
       }
+    }
+  },
+  methods: {
+    sort (dragObj, dropObj, placeholder) {
+      let y = this.globalPos(dragObj).y - this.globalPos(dropObj).y
+      placeholder.style.position = 'absolute'
+      placeholder.style.top = (y - dragObj.getBoundingClientRect().height / 2) + 'px'
+      // sort list items
+      let list = [...dropObj.childNodes]
+      list.sort((a, b) => a.offsetTop > b.offsetTop ? 1 : -1).map(node => dropObj.appendChild(node))
+      placeholder.style.position = 'relative'
+      placeholder.style.top = 'auto'
+    },
+    globalPos (obj) {
+      let objStyle = getComputedStyle(obj)
+      let pos = { x: 0, y: 0 }
+      pos.x = obj.getBoundingClientRect().x
+      pos.y = obj.getBoundingClientRect().y
+
+      // for relative element also add margin from class and style to the mouse position to drag object position
+      if (objStyle.position !== 'absolute' && obj.style.position !== 'absolute') {
+        let x = parseInt(objStyle.marginLeft.substr(0, objStyle.marginLeft.length - 2))
+        let y = parseInt(objStyle.marginTop.substr(0, objStyle.marginTop.length - 2))
+        if (obj.style.left !== '') {
+          x = parseInt(obj.style.left.substr(0, obj.style.left.length - 2))
+        }
+        if (obj.style.top !== '') {
+          y = parseInt(obj.style.top.substr(0, obj.style.top.length - 2))
+        }
+        pos.x -= x
+        pos.y -= y
+      }
+      return pos
     }
   }
 }

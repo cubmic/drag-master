@@ -63,6 +63,7 @@ export default {
       ],
       dragDefs: (defData) => {
         return {
+          parent: () => this.$el,
           data: defData,
           onStart: (dragObj) => {
             dragObj.style.zIndex = 2
