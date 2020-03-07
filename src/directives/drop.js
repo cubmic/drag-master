@@ -10,6 +10,31 @@ export const drop = {
       el.style.position = 'relative'
     }
 
+    // leave start
+    el.onStart = (dragObj, data) => {
+      if (binding.value) {
+        if (binding.value.onStart) {
+          binding.value.onStart(dragObj, el, data)
+        }
+      }
+    }
+    // leave drag
+    el.onDrag = (dragObj, data) => {
+      if (binding.value) {
+        if (binding.value.onDrag) {
+          binding.value.onDrag(dragObj, el, data)
+        }
+      }
+    }
+    // leave end
+    el.onEnd = (dragObj, data) => {
+      if (binding.value) {
+        if (binding.value.onEnd) {
+          binding.value.onEnd(dragObj, el, data)
+        }
+      }
+    }
+
     // enter event
     el.onEnter = (dragObj, data) => {
       if (binding.value) {
@@ -28,20 +53,20 @@ export const drop = {
       }
     }
 
-    // drop event
-    el.onDrop = (dragObj, data) => {
-      if (binding.value) {
-        if (binding.value.onDrop) {
-          binding.value.onDrop(dragObj, el, data)
-        }
-      }
-    }
-
     // leave event
     el.onLeave = (dragObj, data) => {
       if (binding.value) {
         if (binding.value.onLeave) {
           binding.value.onLeave(dragObj, el, data)
+        }
+      }
+    }
+
+    // drop event
+    el.onDrop = (dragObj, data) => {
+      if (binding.value) {
+        if (binding.value.onDrop) {
+          binding.value.onDrop(dragObj, el, data)
         }
       }
     }

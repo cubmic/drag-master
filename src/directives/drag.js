@@ -24,7 +24,6 @@ function appendTo (obj, newParent) {
   let oldParent = obj.parentNode
   let parentDistancePos = relativePos(oldParent, newParent)
   let localPos = relativePos(obj, oldParent)
-  console.log(localPos, parentDistancePos)
   newParent.appendChild(obj)
   obj.style.left = (localPos.x + parentDistancePos.x) + 'px'
   obj.style.top = (localPos.y + parentDistancePos.y) + 'px'
@@ -40,10 +39,10 @@ function globalPos (obj) {
   if (objStyle.position !== 'absolute' && obj.style.position !== 'absolute') {
     let x = parseInt(objStyle.marginLeft.substr(0, objStyle.marginLeft.length - 2))
     let y = parseInt(objStyle.marginTop.substr(0, objStyle.marginTop.length - 2))
-    if (obj.style.left !== '') {
+    if (obj.style.left !== '' && obj.style.left !== 'auto') {
       x = parseInt(obj.style.left.substr(0, obj.style.left.length - 2))
     }
-    if (obj.style.top !== '') {
+    if (obj.style.top !== '' && obj.style.top !== 'auto') {
       y = parseInt(obj.style.top.substr(0, obj.style.top.length - 2))
     }
     pos.x -= x
@@ -171,6 +170,13 @@ export const drag = {
         }
       }
 
+      // for all drop elements
+      if (window.dropElements) {
+        for (let item of window.dropElements) {
+          item.onStart(dragObj, data)
+        }
+      }
+
       //setPos()
       hoverCheck()
 
@@ -189,6 +195,13 @@ export const drag = {
           // onDrag function call
           if (binding.value.onDrag) {
             binding.value.onDrag(dragObj, data)
+          }
+        }
+
+        // for all drop elements
+        if (window.dropElements) {
+          for (let item of window.dropElements) {
+            item.onDrag(dragObj, data)
           }
         }
       }
@@ -213,6 +226,14 @@ export const drag = {
             hoverObj.onDrop(dragObj, data)
           }
         }
+
+        // for all drop elements
+        if (window.dropElements) {
+          for (let item of window.dropElements) {
+            item.onEnd(dragObj, data)
+          }
+        }
+
         // style reset
         if (relative) {
           dragObj.style.position = 'relative'

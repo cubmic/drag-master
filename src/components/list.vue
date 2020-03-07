@@ -34,7 +34,16 @@ li {
 }
 .placeholder {
   background: transparent;
-  border: 2px dashed #F00;
+  border: 2px dashed #666;
+  /* box-shadow: 5px 5px 10px #666 inset; */
+  transition: height 1s, opacity 1s, margin 1s, padding 1s;
+  opacity: 1.0;
+}
+.placeholder.hide {
+  margin: 0 0;
+  padding: 0;
+  height: 0;
+  opacity: 0;
 }
 .drag {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -47,12 +56,9 @@ export default {
   name: 'PageIndex',
   computed: {
     lists () {
-      return this.data
-      /*
-      return this.data.sort((a, b) => {
+      return [...this.data].sort((a, b) => {
         return b.sort - a.sort
       })
-      */
     }
   },
   data () {
@@ -64,10 +70,10 @@ export default {
           title: 'Items',
           items: [
             { id: 1, sort: 1, name: 'Coke' },
-            { id: 2, sort: 2, name: 'Orange Juice' },
+            { id: 2, sort: 5, name: 'Orange Juice' },
             { id: 3, sort: 3, name: 'Apple' },
             { id: 4, sort: 4, name: 'Cornflakes' },
-            { id: 5, sort: 5, name: 'Banana' }
+            { id: 5, sort: 2, name: 'Banana' }
           ]
         },
         {
@@ -85,26 +91,40 @@ export default {
       },
       dropDefs: () => {
         let placeholder
+        let mouseMove = (dragObj) => {
+          let y = this.globalPos(placeholder).y - this.globalPos(dragObj).y
+          y = Math.max(-y, y)
+          if (y > 60) {
+            placeholder.classList.add('hide')
+          } else {
+            placeholder.classList.remove('hide')
+          }
+        }
         return {
-          onEnter: (dragObj, dropObj) => {
+          onStart: (dragObj, dropObj) => {
             // add placeholder
             placeholder = document.createElement('li')
             placeholder.classList.add('placeholder')
+            placeholder.classList.add('hide')
             dropObj.appendChild(placeholder)
-
+          },
+          onDrag: (dragObj) => {
+            mouseMove(dragObj)
+          },
+          onEnd: (dragObj, dropObj) => {
+            // remove placeholder
+            dropObj.removeChild(placeholder)
+          },
+          onEnter: (dragObj, dropObj) => {
+            placeholder.classList.remove('hide')
             this.sort(dragObj, dropObj, placeholder)
           },
           onMove: (dragObj, dropObj) => {
             this.sort(dragObj, dropObj, placeholder)
           },
-          onLeave: (dragObj, dropObj) => {
-            // remove placeholder
-            dropObj.removeChild(placeholder)
-          },
           onDrop: (dragObj, dropObj) => {
             // remove placeholder
             dropObj.insertBefore(dragObj, placeholder)
-            dropObj.removeChild(placeholder)
           }
         }
       },
@@ -120,7 +140,7 @@ export default {
           onEnd: (dragObj) => {
             // remove drag class
             dragObj.classList.remove('drag')
-            return true
+            return false
           }
         }
       }
@@ -147,10 +167,10 @@ export default {
       if (objStyle.position !== 'absolute' && obj.style.position !== 'absolute') {
         let x = parseInt(objStyle.marginLeft.substr(0, objStyle.marginLeft.length - 2))
         let y = parseInt(objStyle.marginTop.substr(0, objStyle.marginTop.length - 2))
-        if (obj.style.left !== '') {
+        if (obj.style.left !== '' && obj.style.left !== 'auto') {
           x = parseInt(obj.style.left.substr(0, obj.style.left.length - 2))
         }
-        if (obj.style.top !== '') {
+        if (obj.style.top !== '' && obj.style.top !== 'auto') {
           y = parseInt(obj.style.top.substr(0, obj.style.top.length - 2))
         }
         pos.x -= x
