@@ -36,7 +36,7 @@ li {
   background: transparent;
   border: 2px dashed #666;
   /* box-shadow: 5px 5px 10px #666 inset; */
-  transition: height 1s, opacity 1s, margin 1s, padding 1s;
+  transition: all 1s;
   opacity: 1.0;
 }
 .placeholder.hide {
@@ -44,6 +44,7 @@ li {
   padding: 0;
   height: 0;
   opacity: 0;
+  border: 0;
 }
 .drag {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
