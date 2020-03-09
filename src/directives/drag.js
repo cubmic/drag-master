@@ -2,18 +2,7 @@ function rectOverlapRect (a, b) {
   return Math.max(a.x, b.x) < Math.min(a.right, b.right) &&
     Math.max(a.y, b.y) < Math.min(a.bottom, b.bottom)
 }
-/*
-function testObj (pos, color) {
-  let o = document.createElement('div')
-  o.style.position = 'absolute'
-  o.style.left = pos.x + 'px'
-  o.style.top = pos.y + 'px'
-  o.style.width = '10px'
-  o.style.height = '10px'
-  o.style.background = color
-  document.body.appendChild(o)
-}
-*/
+
 function relativePos (a, b) {
   let aPos = globalPos(a)
   let bPos = globalPos(b)
@@ -54,12 +43,10 @@ function globalPos (obj) {
 export const drag = {
   inserted (el, binding) {
     // init
-    var dragObj = null
     var posInDragObj = null
-    var oldParent = null
     var relative = false
-    var data = null
     var hoverObj = null
+    var data = null
 
     // add move cursor
     el.style.cursor = 'move'
@@ -69,20 +56,20 @@ export const drag = {
       if (window.dropElements) {
         // leave
         if (hoverObj) {
-          if (!rectOverlapRect(hoverObj.getBoundingClientRect(), dragObj.getBoundingClientRect())) {
-            hoverObj.onLeave(dragObj, data)
+          if (!rectOverlapRect(hoverObj.getBoundingClientRect(), data.dragObj.getBoundingClientRect())) {
+            hoverObj.onLeave(data)
             hoverObj = null
           } else {
             // move
-            hoverObj.onMove(dragObj, data)
+            hoverObj.onMove(data)
           }
         }
         // enter (find overlap item)
         if (!hoverObj) {
           for (let item of window.dropElements) {
-            if (item !== dragObj && rectOverlapRect(item.getBoundingClientRect(), dragObj.getBoundingClientRect())) {
+            if (item !== data.dragObj && rectOverlapRect(item.getBoundingClientRect(), data.dragObj.getBoundingClientRect())) {
               hoverObj = item
-              hoverObj.onEnter(dragObj, data)
+              hoverObj.onEnter(data)
               break
             }
           }
@@ -107,10 +94,10 @@ export const drag = {
 
       // lock axis
       if (binding.value === undefined || binding.value.lockX === undefined) {
-        dragObj.style.left = left + 'px'
+        data.dragObj.style.left = left + 'px'
       }
       if (binding.value === undefined || binding.value.lockY === undefined) {
-        dragObj.style.top = top + 'px'
+        data.dragObj.style.top = top + 'px'
       }
     }
 
@@ -120,11 +107,22 @@ export const drag = {
         return
       }
 
-      dragObj = event.target
-      oldParent = dragObj.parentNode
+      data = {
+        dragData: null,
+        dragObj: null,
+        dragParentObj: null
+      }
+
+      data.dragObj = event.target
+      data.dragParentObj = data.dragObj.parentNode
       let newParent = document.body
       if (binding.value && binding.value.parent) {
         newParent = binding.value.parent()
+      }
+
+      // get from parent the data and start index before the parent change
+      if (data.dragParentObj.onInit) {
+        data = data.dragParentObj.onInit(data)
       }
 
       // set parent to relative if not absolute
@@ -132,27 +130,20 @@ export const drag = {
         newParent.style.position = 'relative'
       }
 
-      /*
-      oldParent.style.boxShadow = '0 0 10px #0F0'
-      testObj(globalPos(oldParent), 'linear-gradient(to right bottom, #0F0 50%, rgba(0,0,0,0) 50%)')
-      newParent.style.boxShadow = '0 0 10px #00F'
-      testObj(globalPos(newParent), 'linear-gradient(to right bottom, rgba(0,0,0,0) 50%, #00F 50%)')
-      */
-
       // append to parent
-      appendTo(dragObj, newParent)
+      appendTo(data.dragObj, newParent)
 
       // if relative change to absolute
-      let dragStyle = getComputedStyle(dragObj)
+      let dragStyle = getComputedStyle(data.dragObj)
       relative = dragStyle.position !== 'absolute'
       if (relative) {
-        dragObj.style.width = dragObj.offsetWidth + 'px'
-        dragObj.style.position = 'absolute'
+        data.dragObj.style.width = data.dragObj.offsetWidth + 'px'
+        data.dragObj.style.position = 'absolute'
       }
 
       // store the distance from the mouse position to the clicked object left,top position
       // to remove it on drag from mouse position
-      let dragObjPos = globalPos(dragObj)
+      let dragObjPos = globalPos(data.dragObj)
       let newParentPos = globalPos(newParent)
       posInDragObj = {
         x: event.pageX - dragObjPos.x + newParentPos.x,
@@ -162,18 +153,18 @@ export const drag = {
       if (binding.value) {
         // related data
         if (binding.value.data) {
-          data = binding.value.data
+          data.dragData = binding.value.data
         }
         // onEnd function call
         if (binding.value.onStart) {
-          binding.value.onStart(dragObj, data)
+          binding.value.onStart(data)
         }
       }
 
       // for all drop elements
       if (window.dropElements) {
         for (let item of window.dropElements) {
-          item.onStart(dragObj, data)
+          item.onStart(data)
         }
       }
 
@@ -183,74 +174,70 @@ export const drag = {
       event.stopPropagation()
     }
     el.addEventListener('mousedown', startDrag)
-    // el.addEventListener('touchstart', startDrag)
 
     // drag event
     function onDrag (event) {
-      if (dragObj) {
+      if (data) {
         setPos()
         hoverCheck()
 
         if (binding.value) {
           // onDrag function call
           if (binding.value.onDrag) {
-            binding.value.onDrag(dragObj, data)
+            binding.value.onDrag(data)
           }
         }
 
         // for all drop elements
         if (window.dropElements) {
           for (let item of window.dropElements) {
-            item.onDrag(dragObj, data)
+            item.onDrag(data)
           }
         }
       }
       event.stopPropagation()
     }
     window.addEventListener('mousemove', onDrag)
-    // window.addEventListener('touchmove', onDrag)
 
     // stop drag event
     function stopDrag (event) {
-      if (dragObj) {
+      if (data) {
         if (binding.value) {
-          // onEnd function call
-          if (binding.value.onEnd) {
-            if (binding.value.onEnd(dragObj, data) === false) {
-              appendTo(dragObj, oldParent)
-            }
+          // drop
+          if (hoverObj && rectOverlapRect(hoverObj.getBoundingClientRect(), data.dragObj.getBoundingClientRect())) {
+            hoverObj.onDrop(data)
           }
 
-          // drop
-          if (hoverObj && rectOverlapRect(hoverObj.getBoundingClientRect(), dragObj.getBoundingClientRect())) {
-            hoverObj.onDrop(dragObj, data)
+          // onEnd function call
+          if (binding.value.onEnd) {
+            if (binding.value.onEnd(data) === false) {
+              appendTo(data.dragObj, data.dragParentObj)
+            }
           }
         }
 
         // for all drop elements
         if (window.dropElements) {
           for (let item of window.dropElements) {
-            item.onEnd(dragObj, data)
+            item.onEnd(data)
           }
         }
 
         // style reset
         if (relative) {
-          dragObj.style.position = 'relative'
-          dragObj.style.width = 'auto'
-          dragObj.style.left = '0px'
-          dragObj.style.top = '0px'
+          data.dragObj.style.position = 'relative'
+          data.dragObj.style.width = 'auto'
+          data.dragObj.style.left = '0px'
+          data.dragObj.style.top = '0px'
         }
       }
-      oldParent = null
-      dragObj = null
       posInDragObj = null
+      relative = false
       hoverObj = null
+      data = null
       event.stopPropagation()
     }
     window.addEventListener('mouseup', stopDrag)
-    // window.addEventListener('touchend', stopDrag)
-    // window.addEventListener('touchcancel', stopDrag)
 
     // store to remove on unbind
     el.events = { startDrag, onDrag, stopDrag }
@@ -259,11 +246,5 @@ export const drag = {
     el.removeEventListener('mousedown', el.events.startDrag)
     el.removeEventListener('touchstart', el.events.startDrag)
     window.removeEventListener('mouseup', el.events.stopDrag)
-    /*
-    window.removeEventListener('mousemove', el.events.onDrag)
-    window.removeEventListener('touchmove', el.events.onDrag)
-    window.removeEventListener('touchend', el.events.stopDrag)
-    window.removeEventListener('touchcancel', el.events.stopDrag)
-    */
   }
 }

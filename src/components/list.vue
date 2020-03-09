@@ -2,7 +2,7 @@
   <div>
     <div v-for="list in lists" :key="list.id">
       <h2>{{ list.title }}</h2>
-      <ul v-drop="dropDefs()">
+      <ul v-drop="dropDefs(list)">
         <li
           v-for="item in list.items"
           :key="item.id"
@@ -35,15 +35,14 @@ li {
 .placeholder {
   background: transparent;
   border: 2px dashed #666;
-  /* box-shadow: 5px 5px 10px #666 inset; */
-  transition: all 1s;
+  transition: height 1s, opacity 1s, margin 1s, padding 1s, border 1s;
   opacity: 1.0;
 }
-.placeholder.hide {
-  margin: 0 0;
+.hide {
+  opacity: 0;
+  margin: 0;
   padding: 0;
   height: 0;
-  opacity: 0;
   border: 0;
 }
 .drag {
@@ -55,26 +54,19 @@ li {
 <script>
 export default {
   name: 'PageIndex',
-  computed: {
-    lists () {
-      return [...this.data].sort((a, b) => {
-        return b.sort - a.sort
-      })
-    }
-  },
   data () {
     return {
-      data: [
+      lists: [
         {
           id: 1,
           color: '975',
           title: 'Items',
           items: [
-            { id: 1, sort: 1, name: 'Coke' },
-            { id: 2, sort: 5, name: 'Orange Juice' },
-            { id: 3, sort: 3, name: 'Apple' },
-            { id: 4, sort: 4, name: 'Cornflakes' },
-            { id: 5, sort: 2, name: 'Banana' }
+            { id: 1, name: 'Coke' },
+            { id: 2, name: 'Orange Juice' },
+            { id: 3, name: 'Apple' },
+            { id: 4, name: 'Cornflakes' },
+            { id: 5, name: 'Banana' }
           ]
         },
         {
@@ -82,102 +74,39 @@ export default {
           color: '579',
           title: 'Shopping list',
           items: [
-            { id: 6, sort: 1, name: 'Wine' },
-            { id: 7, sort: 2, name: 'Milk' }
+            { id: 6, name: 'Wine' },
+            { id: 7, name: 'Milk' }
           ]
         }
       ],
       sortDefs: {
         byY: true
       },
-      dropDefs: () => {
-        let placeholder
-        let mouseMove = (dragObj) => {
-          let y = this.globalPos(placeholder).y - this.globalPos(dragObj).y
-          y = Math.max(-y, y)
-          if (y > 60) {
-            placeholder.classList.add('hide')
-          } else {
-            placeholder.classList.remove('hide')
-          }
-        }
+      dropDefs: (dropData) => {
         return {
-          onStart: (dragObj, dropObj) => {
-            // add placeholder
-            placeholder = document.createElement('li')
-            placeholder.classList.add('placeholder')
-            placeholder.classList.add('hide')
-            dropObj.appendChild(placeholder)
-          },
-          onDrag: (dragObj) => {
-            mouseMove(dragObj)
-          },
-          onEnd: (dragObj, dropObj) => {
-            // remove placeholder
-            dropObj.removeChild(placeholder)
-          },
-          onEnter: (dragObj, dropObj) => {
-            placeholder.classList.remove('hide')
-            this.sort(dragObj, dropObj, placeholder)
-          },
-          onMove: (dragObj, dropObj) => {
-            this.sort(dragObj, dropObj, placeholder)
-          },
-          onDrop: (dragObj, dropObj) => {
-            // remove placeholder
-            dropObj.insertBefore(dragObj, placeholder)
+          data: dropData,
+          placeholder: true,
+          onDrop: (data) => {
+            data.oldParentData.items.splice(data.startIndex, 1)
+            data.dropData.items.splice(data.endIndex, 0, data.dragData)
           }
         }
       },
-      dragDefs: (defData) => {
+      dragDefs: (dragData) => {
         return {
           parent: () => this.$el,
           lockX: true,
-          data: defData,
-          onStart: (dragObj) => {
+          data: dragData,
+          onStart: (data) => {
             // add drag class
-            dragObj.classList.add('drag')
+            data.dragObj.classList.add('drag')
           },
-          onEnd: (dragObj) => {
+          onEnd: (data) => {
             // remove drag class
-            dragObj.classList.remove('drag')
-            return false
+            data.dragObj.classList.remove('drag')
           }
         }
       }
-    }
-  },
-  methods: {
-    sort (dragObj, dropObj, placeholder) {
-      let y = this.globalPos(dragObj).y - this.globalPos(dropObj).y
-      placeholder.style.position = 'absolute'
-      placeholder.style.top = (y - dragObj.getBoundingClientRect().height / 2) + 'px'
-      // sort list items
-      let list = [...dropObj.childNodes]
-      list.sort((a, b) => a.offsetTop > b.offsetTop ? 1 : -1).map(node => dropObj.appendChild(node))
-      placeholder.style.position = 'relative'
-      placeholder.style.top = 'auto'
-    },
-    globalPos (obj) {
-      let objStyle = getComputedStyle(obj)
-      let pos = { x: 0, y: 0 }
-      pos.x = obj.getBoundingClientRect().x
-      pos.y = obj.getBoundingClientRect().y
-
-      // for relative element also add margin from class and style to the mouse position to drag object position
-      if (objStyle.position !== 'absolute' && obj.style.position !== 'absolute') {
-        let x = parseInt(objStyle.marginLeft.substr(0, objStyle.marginLeft.length - 2))
-        let y = parseInt(objStyle.marginTop.substr(0, objStyle.marginTop.length - 2))
-        if (obj.style.left !== '' && obj.style.left !== 'auto') {
-          x = parseInt(obj.style.left.substr(0, obj.style.left.length - 2))
-        }
-        if (obj.style.top !== '' && obj.style.top !== 'auto') {
-          y = parseInt(obj.style.top.substr(0, obj.style.top.length - 2))
-        }
-        pos.x -= x
-        pos.y -= y
-      }
-      return pos
     }
   }
 }

@@ -61,52 +61,30 @@ export default {
         { id: 4, color: 'F88', drag: true, drop: true },
         { id: 5, color: '88F', drop: true }
       ],
-      dragDefs: (defData) => {
+      dragDefs: (dragData) => {
         return {
           parent: () => this.$el,
-          data: defData,
-          onStart: (dragObj) => {
-            dragObj.style.zIndex = 2
+          data: dragData,
+          onStart: (data) => {
+            data.dragObj.style.zIndex = 2
           },
-          onEnd: (dragObj) => {
-            dragObj.style.zIndex = 0
+          onEnd: (data) => {
+            data.dragObj.style.zIndex = 0
           }
         }
       },
-      dropDefs: (defData) => {
-        let oldColor = defData.color
+      dropDefs: (dropData) => {
+        let oldColor = dropData.color
         return {
-          onEnter: (dragObj, dropObj, data) => {
-            defData.color = data.color
+          onEnter: (data) => {
+            dropData.color = data.dragData.color
           },
           onLeave: () => {
-            defData.color = oldColor
+            dropData.color = oldColor
           }
-          /*,
-          onDrop: (dragObj, data) => {
-            // console.log('drop', dragObj, data.id)
-          }
-          */
         }
       }
     }
   }
 }
-
-/*
-function myMove() {
-  var elem = document.getElementById("myAnimation");   
-  var pos = 0;
-  var id = setInterval(frame, 10);
-  function frame() {
-    if (pos == 350) {
-      clearInterval(id);
-    } else {
-      pos++; 
-      elem.style.top = pos + 'px'; 
-      elem.style.left = pos + 'px'; 
-    }
-  }
-}
-*/
 </script>
