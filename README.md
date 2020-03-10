@@ -71,6 +71,53 @@ dropDefs: {
 }
 ```
 
+## Data Flow
+
+You can forward the data to the directive as function
+```
+<li
+    v-for="item in list.items"
+    :key="item.id"
+    v-drag="dragDefs(item)"
+    :style="'background: #' + list.color"
+>
+```
+
+the defs as function
+```
+dragDefs: (dragData) => {
+    return {
+        data: dragData,
+        ...
+    }
+}
+```
+
+then you can use it in every event function
+```
+onDrop: (data) => {
+    console.log(data.dragData)
+}
+```
+
+Also the drop
+```
+<ul v-drop="dropDefs(list)">
+```
+give you the:
+* data.oldParentData = data from the old parent
+* data.startIndex = start index in the old parent
+* data.dropData = date from the new parent
+* data.endIndex = end index in the new parent
+
+to change the data then:
+```
+onDrop: (data) => {
+    data.oldParentData.items.splice(data.startIndex, 1)
+    data.dropData.items.splice(data.endIndex, 0, data.dragData)
+}
+```
+
 ## Project setup
 ```
 npm install
